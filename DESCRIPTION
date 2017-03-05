@@ -1,0 +1,17 @@
+Package: epik.cmd
+Type: Package
+Title: Run epik functions under command line
+Version: 0.99.0
+Date: 2017-3-5
+Author: Zuguang Gu
+Maintainer: Zuguang Gu <z.gu@dkfz.de>
+Depends: R (>= 3.1.2)
+Imports: GetoptLong
+Suggests: epik
+Description: It provides command line interface to some functions in the
+    epik package, which helps to send specific steps of analysis to high
+    performance computing nodes.
+URL: https://github.com/jokergoo/epik.cmd
+License: GPL (>= 2)
+Packaged: 2017-3-5 00:00:00 UTC; Administrator
+Date/Publication: 2017-3-5 00:00:00
