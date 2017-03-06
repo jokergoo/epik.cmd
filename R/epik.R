@@ -5,7 +5,7 @@
 # == details
 # There are several R scripts which can be run directly. The path of all scripts can be obtained by 
 # 
-#    dir(system.file("pipeline", "script", package = "epik.cmd"), pattern = "\\.R$")
+#    dir(system.file("pipeline", "scripts", package = "epik.cmd"), pattern = "\\.R$")
 #
 # You can either directly run these R scripts by:
 #
@@ -48,7 +48,7 @@
 #
 epik = function() {
 
-	all_cmds = dir(system.file("pipeline", "script", package = "epik.cmd"), pattern = "\\.R$")
+	all_cmds = dir(system.file("pipeline", "scripts", package = "epik.cmd"), pattern = "\\.R$")
 	all_cmds = gsub("\\.R$", "", all_cmds)
 	
 	msg = 'Usage: Rscript -e "epik.cmd::epik()" cmd [options]\n\nAvailable cmd:\n\n'
@@ -83,6 +83,6 @@ epik = function() {
 	# cmd = qq("\"@{R_binary}\" --vanilla --slave --args @{paste(x[-1], collapse=' ')} < \"@{system.file('pipeline', package = 'epic')}/@{x[1]}.R\"")
 	# cat(cmd, "\n")
 
-	GetoptLong:::source(qq("@{system.file('pipeline', 'script', package = 'epik.cmd')}/@{x[1]}.R"), argv = paste(x[-1], collapse=' '))
+	GetoptLong:::source(qq("@{system.file('pipeline', 'scripts', package = 'epik.cmd')}/@{x[1]}.R"), argv = paste(x[-1], collapse=' '))
 
 }

@@ -28,4 +28,4 @@ if(!chr %in% CHROMOSOME) stop("'chr' should be included in 'CHROMOSOME'.")
 
 cr = correlated_regions(sample_id, EXPR, TXDB, chr = chr, subgroup = SAMPLE$subgroup, col = COLOR$subgroup,
 	window_size = windowsize, window_step = windowstep, max_width = maxwindow)
-saveRDS(cr, file = qq("@{PROJECT_DIR}/rds/cr_@{chr}.rds"))
+saveRDS(cr, file = qq("@{PROJECT_DIR}/rds_cr/cr_@{chr}.rds"))
