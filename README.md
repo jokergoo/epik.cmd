@@ -1,4 +1,4 @@
-## epik.cmd: Command line interface to epik package
+## epik.cmd: command line interface to epik package
 
 This package provides commands for running specific analysis from [epik](https://github.com/jokergoo/epik) package 
 under command-line mode.
@@ -74,3 +74,7 @@ The orders of chromatin states in the plot can be set by `CHROMATIN_STATES_ORDER
 vector of colors for which names are state names) in the configuration file.
 
 ```
+
+## License
+
+GPL (>= 2)
