@@ -18,7 +18,7 @@
 #
 epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE, Rscript_binary = "Rscript", submit_by = "qsub") {
 
-	OUTPUT_DIR = NULL
+	PROJECT_DIR = NULL
 	SAMPLE = NULL
 	EXPR = NULL
 	TXDB = NULL
@@ -29,17 +29,21 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
         stop("epik package should be installed.")
     }
 
-	getFromNamespace("load_config", ns = "epik")(config_file, validate = FALSE)
+	getFromNamespace("load_epik_config", ns = "epik")(config_file, validate = FALSE)
 
-	tmpdir = paste0(OUTPUT_DIR, "/temp")
+	if(is.null(PROJECT_DIR)) {
+		stop("`PROJECT_DIR` must be defined in the configuration file.")
+	}
+
+	tmpdir = paste0(PROJECT_DIR, "/temp")
 	dir.create(tmpdir, showWarnings = FALSE)
 
 	if(length(unique(SAMPLE$class)) > 1) {
-		x = single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_cgi_and_shore --config '@{config_file}'"), 
-			output = c(qq("@{OUTPUT_DIR/rds/mean_meth_1kb_cgi.rds}"),
-				       qq("@{OUTPUT_DIR/rds/mean_meth_1kb_cgi_shore.rds}"),
-				       qq("@{OUTPUT_DIR/rds/mean_meth_1kb_neither_cgi_nor_shore.rds}"),
-				       qq("@{OUTPUT_DIR}/heatmap_diff_methylation_1kb_window.pdf"),
+		x = single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_cgi_and_shore --config '@{config_file}'"), 
+			output = c(qq("@{PROJECT_DIR/rds/mean_meth_1kb_cgi.rds}"),
+				       qq("@{PROJECT_DIR/rds/mean_meth_1kb_cgi_shore.rds}"),
+				       qq("@{PROJECT_DIR/rds/mean_meth_1kb_neither_cgi_nor_shore.rds}"),
+				       qq("@{PROJECT_DIR}/heatmap_diff_methylation_1kb_window.pdf"),
 				       qq("@{OUTPUT}/genome_diff_1kb_window_correlation.pdf")),
 			name = qq("@{prefix}differential_methylation_in_cgi_and_shore"),
 			walltime = "10:00:00",
@@ -50,8 +54,8 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 			tmpdir = tmpdir,
 			submit_by = submit_by)
 
-		single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_genomic_features --config '@{config_file}'"),
-			output = c(qq("@{OUTPUT_DIR}/heatmap_diff_methylation_in_genomic_features.pdf")),
+		single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_genomic_features --config '@{config_file}'"),
+			output = c(qq("@{PROJECT_DIR}/heatmap_diff_methylation_in_genomic_features.pdf")),
 			name = qq("@{prefix}differential_methylation_in_genomic_features"),
 			walltime = "10:00:00",
 			mem = "10G",
@@ -61,10 +65,10 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 			tmpdir = tmpdir,
 			submit_by = submit_by)
 
-		single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' methylation_subtype_classification_in_cgi_and_shore --config '@{config_file}'"),
-			output = c(qq("@{OUTPUT_DIR}/methylation_classification_wgbs_cgi.pdf"),
-				       qq("@{OUTPUT_DIR}/methylation_classification_wgbs_cgi_shore.pdf"),
-				       qq("@{OUTPUT_DIR}/methylation_classification_wgbs_neither_cgi_nor_shores.pdf")),
+		single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' methylation_subtype_classification_in_cgi_and_shore --config '@{config_file}'"),
+			output = c(qq("@{PROJECT_DIR}/methylation_classification_wgbs_cgi.pdf"),
+				       qq("@{PROJECT_DIR}/methylation_classification_wgbs_cgi_shore.pdf"),
+				       qq("@{PROJECT_DIR}/methylation_classification_wgbs_neither_cgi_nor_shores.pdf")),
 			name = qq("@{prefix}methylation_subtype_classification_in_cgi_and_shore"),
 			walltime = "10:00:00",
 			mem = "10G",
@@ -75,13 +79,13 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 			tmpdir = tmpdir,
 			submit_by = submit_by)
 	} else {
-		single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' methylation_subtype_classification_in_cgi_and_shore --config '@{config_file}'"),
-			output = c(qq("@{OUTPUT_DIR}/methylation_classification_wgbs_cgi.pdf"),
-				       qq("@{OUTPUT_DIR}/methylation_classification_wgbs_cgi_shore.pdf"),
-				       qq("@{OUTPUT_DIR}/methylation_classification_wgbs_neither_cgi_nor_shores.pdf"),
-				       qq("@{OUTPUT_DIR/rds/mean_meth_1kb_cgi.rds}"), 
-				       qq("@{OUTPUT_DIR/rds/mean_meth_1kb_cgi_shore.rds}"), 
-				       qq("@{OUTPUT_DIR/rds/mean_meth_1kb_neither_cgi_nor_shore.rds}")),
+		single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' methylation_subtype_classification_in_cgi_and_shore --config '@{config_file}'"),
+			output = c(qq("@{PROJECT_DIR}/methylation_classification_wgbs_cgi.pdf"),
+				       qq("@{PROJECT_DIR}/methylation_classification_wgbs_cgi_shore.pdf"),
+				       qq("@{PROJECT_DIR}/methylation_classification_wgbs_neither_cgi_nor_shores.pdf"),
+				       qq("@{PROJECT_DIR/rds/mean_meth_1kb_cgi.rds}"), 
+				       qq("@{PROJECT_DIR/rds/mean_meth_1kb_cgi_shore.rds}"), 
+				       qq("@{PROJECT_DIR/rds/mean_meth_1kb_neither_cgi_nor_shore.rds}")),
 			name = qq("@{prefix}methylation_subtype_classification_in_cgi_and_shore"),
 			walltime = "10:00:00",
 			mem = "10G",
@@ -92,11 +96,11 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 			submit_by = submit_by)
 	}
 
-	single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' general_methylation_distribution --config '@{config_file}'"),
-		output = c(qq("@{OUTPUT_DIR}/general_methylation_distribution.pdf"),
-			       qq("@{OUTPUT_DIR}/general_methylation_distribution_cgi.pdf"),
-			       qq("@{OUTPUT_DIR}/general_methylation_distribution_cgi_shores.pdf"),
-			       qq("@{OUTPUT_DIR}/general_methylation_distribution_neither_cgi_nor_shores.pdf")),
+	single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' general_methylation_distribution --config '@{config_file}'"),
+		output = c(qq("@{PROJECT_DIR}/general_methylation_distribution.pdf"),
+			       qq("@{PROJECT_DIR}/general_methylation_distribution_cgi.pdf"),
+			       qq("@{PROJECT_DIR}/general_methylation_distribution_cgi_shores.pdf"),
+			       qq("@{PROJECT_DIR}/general_methylation_distribution_neither_cgi_nor_shores.pdf")),
 		name = qq("@{prefix}general_methylation_distribution"),
 		walltime = "10:00:00",
 		mem = "10G",
@@ -116,8 +120,8 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 
 	dependency = NULL
 	for(chr in CHROMOSOME) {
-		x = single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions --config '@{config_file}' --chr @{chr}"),
-			output = qq("@{OUTPUT_DIR}/rds/@{chr}_cr.rds"),
+		x = single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions --config '@{config_file}' --chr @{chr}"),
+			output = qq("@{PROJECT_DIR}/rds/@{chr}_cr.rds"),
 			name = qq("@{prefix}correlated_regions_@{chr}"),
 			walltime = "10:00:00",
 			mem = "10G",
@@ -129,7 +133,7 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 		dependency = c(dependency, x)
 	}
 
-	pid_cr_filter = single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_filter --config '@{config_file}'"),
+	pid_cr_filter = single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_filter --config '@{config_file}'"),
 		output = qq("@{OUTPUT_FOLDER}/rds/cr_filtered_fdr_@{cutoff}.rds"),
 		name = qq("@{prefix}correlated_regions_filter"),
 		walltime = "10:00:00",
@@ -141,8 +145,8 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 		tmpdir = tmpdir,
 		submit_by = submit_by)
 
-	single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_reduce --config '@{config_file}'"),
-		output = qq("@{OUTPUT_DIR}/rds/cr_reduced_fdr_@{cutoff}.rds"),
+	single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_reduce --config '@{config_file}'"),
+		output = qq("@{PROJECT_DIR}/rds/cr_reduced_fdr_@{cutoff}.rds"),
 		name = qq("@{prefix}correlated_regions_reduce"),
 		walltime = "10:00:00",
 		mem = "10G",
@@ -153,12 +157,12 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 		tmpdir = tmpdir,
 		submit_by = submit_by)
 
-	single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_downstream --config '@{config_file}'"),
-		output = c(qq("@{OUTPUT_DIR}/cr_number.pdf"),
-			       qq("@{OUTPUT_DIR}/hilbert_sig.pdf"),
-			       qq("@{OUTPUT_DIR}/hilbert_all.pdf"),
-			       qq("@{OUTPUT_DIR}/cr_overlap.pdf"),
-			       qq("@{OUTPUT_DIR}/cr_tss.pdf")),
+	single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_downstream --config '@{config_file}'"),
+		output = c(qq("@{PROJECT_DIR}/cr_number.pdf"),
+			       qq("@{PROJECT_DIR}/hilbert_sig.pdf"),
+			       qq("@{PROJECT_DIR}/hilbert_all.pdf"),
+			       qq("@{PROJECT_DIR}/cr_overlap.pdf"),
+			       qq("@{PROJECT_DIR}/cr_tss.pdf")),
 		name = qq("@{prefix}correlated_regions_downstream"),
 		walltime = "10:00:00",
 		mem = "10G",
@@ -170,7 +174,7 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 		submit_by = submit_by)
 
 	for(chr in CHROMOSOME) {
-		single_pipeline_step(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_gviz --config '@{config_file}' --chr @{chr}"),
+		single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_gviz --config '@{config_file}' --chr @{chr}"),
 			output = NULL,
 			name = qq("@{prefix}correlated_regions_gviz"),
 			walltime = "10:00:00",
@@ -189,7 +193,7 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 
 	for(mk in MARKS) {
 		for(which in c("pos", "neg")) {
-			single_pipeline_step("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_enriched --config '@{config_file}' --peak @{mk} --which @{which}",
+			single_job("'@{Rscript_binary}' -e 'epic::epic()' correlated_regions_enriched --config '@{config_file}' --peak @{mk} --which @{which}",
 				output = NULL,
 				name = qq("@{prefix}correlated_regions_enriched_@{mk}_@{which}"),
 				walltime = "10:00:00",

@@ -78,11 +78,7 @@ epik = function() {
 			q(save = "no")
 		}
 	}
-	# x = ifelse(grepl(" ", x), paste0("\"", x, "\""), x)
-
-	# cmd = qq("\"@{R_binary}\" --vanilla --slave --args @{paste(x[-1], collapse=' ')} < \"@{system.file('pipeline', package = 'epic')}/@{x[1]}.R\"")
-	# cat(cmd, "\n")
-
+	
 	GetoptLong:::source(qq("@{system.file('pipeline', 'scripts', package = 'epik.cmd')}/@{x[1]}.R"), argv = paste(x[-1], collapse=' '))
 
 }

@@ -13,7 +13,7 @@ epik()
 There are several R scripts which can be run directly. The path of all scripts can be obtained by
 
   \preformatted{
-   dir(system.file("pipeline", "script", package = "epik.cmd"), pattern = "\\.R$")  }
+   dir(system.file("pipeline", "scripts", package = "epik.cmd"), pattern = "\\.R$")  }
 
 You can either directly run these R scripts by:
 
@@ -63,4 +63,5 @@ Zuguang Gu <z.gu@dkfz.de>
 \examples{
 # There is no example
 NULL
+
 }
