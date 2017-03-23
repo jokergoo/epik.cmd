@@ -5,3 +5,5 @@ check.bat
 ^.*\.Rproj$
 ^\.Rproj\.user$
 .travis.yml
+test_not_run
+
