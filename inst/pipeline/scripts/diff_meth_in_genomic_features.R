@@ -1,4 +1,4 @@
-
+ 
 suppressPackageStartupMessages(library(GetoptLong))
 GetoptLong("config=s", "A configuration R script. Check the help page of `load_config()` 
 	                   function to find out how to properly set one.",
