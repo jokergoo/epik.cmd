@@ -49,6 +49,7 @@ methylation_hooks$get_by_chr = function(chr) {
 
 
 # TXDB (optional): a `GenomicFeatures::TxDb` object.
+library(GenomicRanges)
 TXDB = loadDb(...)
 
 # GTF file which is used to build 'TXDB'. If it is null, `metadata(TXDB)[3, "value"]` will be used

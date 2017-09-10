@@ -6,6 +6,8 @@ methdiff = 0
 equalscale = TRUE
 GetoptLong("config=s", "A configuration R script. Check the help page of `load_config()` 
 	                   function to find out how to properly set one.",
+	       "subgroup1=s", "name of subgroup1",
+	       "subgroup2=s", "name of subgroup2",
 	       "min1=f", "If there are multiple samples in the group 1, it is possible that 
 	                  a segment has more than one states asigned to it. If the recurrency 
 	                  of each state is relatively low, it means there is no one dominant 
@@ -28,7 +30,16 @@ GetoptLong("config=s", "A configuration R script. Check the help page of `load_c
 	       script_name = "-e \"epik.cmd::epik()\" chromatin_states_transitions")
 
 library(epik)
-load_config(config, use_std_dir = TRUE)
+load_epik_config(config)
+
+if(!(subgroup1 %in% SAMPLE$subgroup)) {
+	stop("Cannot find ", subgroup1, " in `SAMPLE$subgroup")
+}
+if(!(subgroup2 %in% SAMPLE$subgroup)) {
+	stop("Cannot find ", subgroup2, " in `SAMPLE$subgroup")
+}
+
+SAMPLE = SAMPLE[SAMPLE$subgroup %in% c(subgroup1, subgroup2), , drop = FALSE]
 
 sample_id = rownames(SAMPLE)
 chromHMM_list = get_chromHMM_list(sample_id)
@@ -42,69 +53,34 @@ subgroup = SAMPLE$subgroup[l]
 if(length(sample_id)) stop("no sample detected.")
 if(length(unique(subgroup)) <= 1) stop("less than 2 subgroups.")
 
-subgroup_level = unique(subgroup)
-nc = length(subgroup_level)
+message(qq("making chromatin transition matrix between @{subgroup1} and @{subgroup2}"))
 
-# make pair-wise comparison
-mat_list = list()
-for(i in 1:(nc-1)) {
-	for(j in (i+1):nc) {
+gr_list_1 = chromHMM_list[subgroup == subgroup1]
+gr_list_2 = chromHMM_list[subgroup == subgroup2]
+min1 = min1 * length(gr_list_1)
+min2 = min2 * length(gr_list_2)
 
-		message(qq("making chromatin transition matrix between @{subgroup_level[i]} and @{subgroup_level[j]}"))
+mat = make_transition_matrix_from_chromHMM(gr_list_1, gr_list_2, window = window, min_1 = min1, min_2 = min_2, meth_diff = methdiff)
 
-		gr_list_1 = chromHMM_list[subgroup == subgroup_level[i]]
-		gr_list_2 = chromHMM_list[subgroup == subgroup_level[j]]
-		min1 = min1 * length(gr_list_1)
-		min2 = min2 * length(gr_list_2)
-
-		mat = make_transition_matrix_from_chromHMM(gr_list_1, gr_list_2, window = window, min_1 = min1, min_2 = min_2, meth_diff = methdiff)
-
-		if(exists("CHROMATIN_STATES_ORDER")) {
-			mat = mat[CHROMATIN_STATES_ORDER, CHROMATIN_STATES_ORDER]
-		}
-
-		mat_list[[paste0(i, "_", j)]] = mat
-	}
+if(exists("CHROMATIN_STATES_ORDER")) {
+	mat = mat[CHROMATIN_STATES_ORDER, CHROMATIN_STATES_ORDER]
 }
-
-if(equalscale) {
-	im = which.max(sapply(mat_list, sum))[1]
-	max_mat1 = mat_list[[im]]
-
-	im = which.max(sapply(mat_list, function(m) {
-		cn = intersect(rownames(m), colnames(m))
-		for(i in cn) {
-			m[i, i] = 0
-		}
-		sum(m)
-	}))[1]
-	max_mat2 = mat_list[[im]]
-} else {
-	max_mat1 = NULL
-	max_mat2 = NULL
-}
-
 
 if(!exists("CHROMATIN_STATES_COLOR")) {
 	CHROMATIN_STATES_COLOR = NULL
 }
 
-pdf(qq("@{PROJECT_DIR}/image/chromatin_states_transitions.pdf", width = 8, height = 8))
-for(i in 1:(nc-1)) {
-	for(j in (i+1):nc) {
+pdf(qq("@{PROJECT_DIR}/image/chromatin_states_transitions_@{subgroup1}_vs_@{subgroup2}.pdf", width = 8, height = 8))
 
-		if(nrow(mat) > 6) {
-			legend_position = c("bottomleft", "bottomright")
-		} else {
-			legend_position = "bottomleft"
-		}
-
-		mat = mat_list[[paste0(i, "_", j)]]
-
-		chromatin_states_transition_chord_diagram(mat, max_mat = max_mat1, group_names = subgroup_level[c(i, j)], 
-			remove_unchanged_transition = FALSE, legend_position = legend_position, state_col = CHROMATIN_STATES_COLOR)
-		chromatin_states_transition_chord_diagram(mat, max_mat = max_mat2, group_names = subgroup_level[c(i, j)], 
-			remove_unchanged_transition = TRUE, legend_position = legend_position, state_col = CHROMATIN_STATES_COLOR)
-	}
+if(nrow(mat) > 6) {
+	legend_position = c("bottomleft", "bottomright")
+} else {
+	legend_position = "bottomleft"
 }
+
+chromatin_states_transition_chord_diagram(mat, group_names = c(subgroup1, subgroup2), 
+	remove_unchanged_transition = FALSE, legend_position = legend_position, state_col = CHROMATIN_STATES_COLOR)
+chromatin_states_transition_chord_diagram(mat, group_names = c(subgroup1, subgroup2), 
+	remove_unchanged_transition = TRUE, legend_position = legend_position, state_col = CHROMATIN_STATES_COLOR)
+
 dev.off()

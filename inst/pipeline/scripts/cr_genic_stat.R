@@ -10,7 +10,8 @@ GetoptLong("config=s", "A configuration R script. Check the help page of `load_c
 	       script_name = "-e \"epik.cmd::epik()\" cr_genic_stat")
 
 library(epik)
-load_config(config, use_std_dir = TRUE)
+load_epik_config(config)
+initialize_project_directory(PROJECT_DIR)
 
 cr_all = NULL
 for(chr in CHROMOSOME) {

@@ -10,7 +10,8 @@ GetoptLong("config=s", "A configuration R script. Check the help page of `load_c
 	       script_name = "-e \"epik.cmd::epik()\" cr_gviz")
 
 library(epik)
-load_config(config, use_std_dir = TRUE)
+load_epik_config(config)
+initialize_project_directory(PROJECT_DIR)
 
 cr = readRDS(qq("@{PROJECT_DIR}/rds_cr/cr_all.rds"))
 	

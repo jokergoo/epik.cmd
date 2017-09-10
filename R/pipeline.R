@@ -16,7 +16,8 @@
 # == author
 # Zuguang Gu <z.gu@dkfz.de>
 #
-epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE, Rscript_binary = "Rscript", submit_by = "qsub") {
+epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE, 
+	Rscript_binary = "Rscript", submit_by = "qsub") {
 
 	PROJECT_DIR = NULL
 	SAMPLE = NULL
@@ -38,7 +39,7 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 	tmpdir = paste0(PROJECT_DIR, "/temp")
 	dir.create(tmpdir, showWarnings = FALSE)
 
-	if(length(unique(SAMPLE$class)) > 1) {
+	if(length(unique(SAMPLE$subgroup)) > 1) {
 		x = single_job(qq("'@{Rscript_binary}' -e 'epic::epic()' differential_methylation_in_cgi_and_shore --config '@{config_file}'"), 
 			output = c(qq("@{PROJECT_DIR/rds/mean_meth_1kb_cgi.rds}"),
 				       qq("@{PROJECT_DIR/rds/mean_meth_1kb_cgi_shore.rds}"),
