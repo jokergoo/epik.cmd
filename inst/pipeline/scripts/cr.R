@@ -1,7 +1,7 @@
 suppressPackageStartupMessages(library(GetoptLong))
 
 chr = "chr1"
-extend = 5000
+extend = 50000
 windowsize = 6
 windowstep = 3
 maxwindow = 10000

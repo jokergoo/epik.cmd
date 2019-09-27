@@ -19,16 +19,21 @@ if(!(subgroup2 %in% SAMPLE$subgroup)) {
 	stop("Cannot find ", subgroup2, " in `SAMPLE$subgroup")
 }
 
+SAMPLE = SAMPLE[SAMPLE$subgroup %in% c(subgroup1, subgroup2), , drop = FALSE]
+
+subgroup = SAMPLE$subgroup
+names(subgroup) = rownames(SAMPLE)
+
 qqcat("making hilbert curve for methylation.\n")
 pdf(qq("@{PROJECT_DIR}/image/hc_difference_methylation_@{subgroup1}_vs_@{subgroup2}.pdf"), width = 9, height = 8)
-gr_meth = hilbert_curve_methylation_difference(subgroup = SAMPLE$subgroup, comparison = c(subgroup1, subgroup2))
+gr_meth = hilbert_curve_methylation_difference(subgroup = subgroup, comparison = c(subgroup1, subgroup2))
 dev.off()
 
 if(!is.null(MARKS)) {
 	pdf(qq("@{PROJECT_DIR}/image/hc_difference_histone_mark_@{subgroup1}_vs_@{subgroup2}.pdf"), width = 9, height = 8)
 	gr_list = lapply(MARKS, function(mk) {
 		qqcat("making hilbert curve for @{mk}\n")
-		hilbert_curve_chipseq_difference(mk, subgroup = SAMPLE$subgroup, comparison = c(subgroup1, subgroup2))
+		hilbert_curve_chipseq_difference(mk, subgroup = subgroup, comparison = c(subgroup1, subgroup2))
 	})
 	names(gr_list) = MARKS
 	dev.off()

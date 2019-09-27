@@ -1,6 +1,7 @@
+export('print.function')
 export(epik)
-export(initialize_project_directory)
 export(single_job)
 
 import(GetoptLong)
 importFrom("utils", "getFromNamespace")
+

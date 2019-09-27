@@ -25,11 +25,11 @@ unique_subgroup = unique(SAMPLE$subgroup)
 subgroup_str = paste(sort(unique_subgroup), collapse = "_")
 
 if(is.null(fdr) || is.null(methdiff)) {
-	files = file.list(qq("@{PROJECT_DIR}/rds_cr/@{subgroup_str}/"))
+	files = list.files(qq("@{PROJECT_DIR}/rds_cr/@{subgroup_str}/"))
 	files_reduce = grep("cr_reduce_.*?_fdr_(.*?)_methdiff_(.*?)\\.rds", files, value = TRUE)
 	if(length(files_reduce)) {
-		fdr_detected = as.numeric(unique(gsub("cr_reduce_.*?_fdr_(.*?)_methdiff_.*?\\.rds", files_reduce)))
-		methdiff_detected = as.numeric(unique(gsub("cr_reduce_.*?_fdr_.*?_methdiff_(.*?)\\.rds", files_reduce)))
+		fdr_detected = as.numeric(unique(gsub("cr_reduce_.*?_fdr_(.*?)_methdiff_.*?\\.rds", "\\1", files_reduce)))
+		methdiff_detected = as.numeric(unique(gsub("cr_reduce_.*?_fdr_.*?_methdiff_(.*?)_.*\\.rds", "\\1", files_reduce)))
 
 		if(length(fdr_detected) == 1 && length(methdiff_detected) == 1) {
 			fdr = fdr_detected
@@ -44,7 +44,7 @@ if(is.null(fdr) || is.null(methdiff)) {
 
 cr_all = NULL
 for(chr in CHROMOSOME) {
-	cr = readRDS(qq("@{PROJECT_DIR}/rds_cr/@{subgroup_str}/cr_reduce_@{chr}_fdr_@{fdr}_methdiff_@{methdiff}.rds"))
+	cr = readRDS(qq("@{PROJECT_DIR}/rds_cr/@{subgroup_str}/cr_reduce_@{chr}_fdr_@{fdr}_methdiff_@{methdiff}_@{subgroup_str}.rds"))
 	cr_all = cr_concatenate(cr_all, cr)
 }
 

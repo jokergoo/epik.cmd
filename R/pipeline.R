@@ -233,7 +233,7 @@ epik_pipeline = function(config_file, prefix = "", email = NULL, enforce = FALSE
 #
 single_job = function(cmd, name, walltime = "1:00:00", mem = "1G", nodes = 1, 
 	email = NULL, dependency = NULL, enforce = FALSE, tmpdir = tempdir(), submit_by = "qsub",
-	execute = TRUE) {
+	execute = TRUE, output = NULL) {
 	
 	tmpdir = normalizePath(tmpdir)
 

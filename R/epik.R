@@ -80,5 +80,4 @@ epik = function() {
 	}
 	
 	GetoptLong:::source(qq("@{system.file('pipeline', 'scripts', package = 'epik.cmd')}/@{x[1]}.R"), argv = paste(x[-1], collapse=' '))
-
 }
